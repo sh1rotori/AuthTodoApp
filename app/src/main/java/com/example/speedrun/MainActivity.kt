@@ -7,16 +7,19 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -153,24 +156,64 @@ fun RegistrationScreen(navController: NavController) {
     }
 }
 
-
-
 @Composable
 fun HomeScreen(navController: NavController) {
+    TodoList(navController = navController)
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TodoList(navController: NavController) {
+    // Список задач
+    val tasks = remember { mutableStateListOf<String>() }
+    // Текст новой задачи
+    var newTaskText by remember { mutableStateOf("") }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        verticalArrangement = Arrangement.Top
     ) {
-        Text("Welcome!")
+        Text("ToDo List", style = MaterialTheme.typography.titleSmall)
         Spacer(modifier = Modifier.height(16.dp))
+
+        // Отображение списка задач
+        Column {
+            tasks.forEach { task ->
+                Text(text = task)
+            }
+        }
+
+        // Поле ввода для новой задачи
+        OutlinedTextField(
+            value = newTaskText,
+            onValueChange = { newTaskText = it },
+            label = { Text("New Task") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Кнопка для добавления новой задачи
+        Button(onClick = {
+            if (newTaskText.isNotEmpty()) {
+                tasks.add(newTaskText)
+                newTaskText = ""
+            }
+        }) {
+            Text("Add Task")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Кнопка для выхода из приложения
         Button(onClick = { FirebaseAuth.getInstance().signOut(); navController.navigate("login") }) {
             Text("Sign Out")
         }
     }
 }
+
 
 // Функция для входа в систему
 fun signIn(email: String, password: String, navController: NavController) {
@@ -203,8 +246,5 @@ fun signUp(email: String, password: String, navController: NavController) {
                 // Обработка ошибки регистрации
             }
         }
-
-
 }
-
 
